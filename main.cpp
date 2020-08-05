@@ -4,6 +4,9 @@
 #include <conduit/generator.hpp>
 #include <conduit/source.hpp>
 
+#include <cppcoro/async_generator.hpp>
+#include <cppcoro/generator.hpp>
+
 static void count_baseline(benchmark::State& state) {
     long min = 0;
     long inc = 1;
@@ -12,33 +15,28 @@ static void count_baseline(benchmark::State& state) {
         long value = min;
         benchmark::DoNotOptimize(value);
     }
-} 
-BENCHMARK(count_baseline);
+}
 
-auto count_generator(long min, long inc) -> conduit::generator<long> {
+template <class Gen>
+auto count_coro(long min, long inc) -> Gen {
     for (;; min += inc) {
         co_yield min;
     }
 }
-static void count_with_generator(benchmark::State& state) {
-    auto source = count_generator(0, 1);
+
+static void count_with_conduit_generator(benchmark::State& state) {
+    auto source = count_coro<conduit::generator<long>>(0, 1);
     auto it = begin(source);
     for (auto _ : state) {
         auto value = *it;
-        ++it;
+        it++;
         benchmark::DoNotOptimize(value);
     }
 }
-BENCHMARK(count_with_generator);
 
-auto count_source(long min, long inc) -> conduit::source<long> {
-    for (;; min += inc) {
-        co_yield min;
-    }
-}
-static void count_with_source(benchmark::State& state) {
+static void count_with_conduit_async_generator(benchmark::State& state) {
     [&]() -> conduit::co_void {
-        auto source = count_source(0, 1);
+        auto source = count_coro<conduit::source<long>>(0, 1);
         for (auto _ : state) {
             auto value = *co_await source;
             benchmark::DoNotOptimize(value);
@@ -46,18 +44,36 @@ static void count_with_source(benchmark::State& state) {
         co_return;
     }();
 }
-BENCHMARK(count_with_source);
 
-auto get_value_async(long value) -> conduit::future<long> { co_return value; }
-static void BM_Future(benchmark::State& state) {
+static void count_with_cppcoro_generator(benchmark::State& state) {
+    auto source = count_coro<cppcoro::generator<long>>(0, 1);
+    using std::begin;
+    auto it = begin(source);
+    for (auto _ : state) {
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
+auto count_with_cppcoro_async_generator(benchmark::State& state) {
     [&]() -> conduit::co_void {
+        auto gen = count_coro<cppcoro::async_generator<long>>(0, 1);
+        auto it = gen.begin();
         for (auto _ : state) {
-            auto value = *co_await get_value_async(10);
+            auto iter = co_await it;
+            auto value = *iter;
             benchmark::DoNotOptimize(value);
         }
         co_return;
     }();
 }
-BENCHMARK(BM_Future);
+BENCHMARK(count_baseline);
+BENCHMARK(count_with_cppcoro_generator);
+BENCHMARK(count_with_conduit_generator);
+BENCHMARK(count_with_cppcoro_generator);
+BENCHMARK(count_with_conduit_generator);
+BENCHMARK(count_with_conduit_async_generator);
+BENCHMARK(count_with_cppcoro_async_generator);
 
 BENCHMARK_MAIN();
