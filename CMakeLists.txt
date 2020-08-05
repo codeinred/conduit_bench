@@ -6,6 +6,8 @@ find_package(benchmark REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(conduit/include)
+include_directories(cppcoro/include)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Threads REQUIRED)
 
