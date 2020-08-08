@@ -5,6 +5,11 @@ find_package(benchmark REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+  add_compile_options("-fcoroutines")
+endif()
+
 include_directories(conduit/include)
 include_directories(cppcoro/include)
 
