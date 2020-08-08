@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "sudo cpupower frequency-set -g performance"
+sudo cpupower frequency-set -g performance 
+cat /proc/cpuinfo | grep MHz
+taskset --cpu-list 0 build/conduit_bench --benchmark_repetitions=10 --benchmark_report_aggregates_only=true
+echo "sudo cpupower frequency-set -g powersave"
+sudo cpupower frequency-set -g powersave
