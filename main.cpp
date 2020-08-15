@@ -3,6 +3,8 @@
 #include <conduit/future.hpp>
 #include <conduit/generator.hpp>
 #include <conduit/source.hpp>
+#include <memory>
+#include <functional>
 
 #include <cppcoro/async_generator.hpp>
 #include <cppcoro/generator.hpp>
@@ -16,64 +18,74 @@ static void count_baseline(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }
 }
+static void count_std_function(benchmark::State& state) {
+    auto func = std::function<long()>([i = 0l] () mutable { return i++; });
+
+    for(auto _ : state) {
+        long value = func();
+        benchmark::DoNotOptimize(value);
+    }
+}
 
 template <class Gen>
-auto count_coro(long min, long inc) -> Gen {
-    for (;; min += inc) {
-        co_yield min;
+auto nums() -> Gen {
+    long i = 0;
+    for (;; i++) {
+        co_yield i;
     }
 }
 
-static void count_with_conduit_generator(benchmark::State& state) {
-    auto source = count_coro<conduit::generator<long>>(0, 1);
-    auto it = begin(source);
-    for (auto _ : state) {
-        auto value = *it;
-        it++;
-        benchmark::DoNotOptimize(value);
-    }
-}
 
-static void count_with_conduit_async_generator(benchmark::State& state) {
-    [&]() -> conduit::co_void {
-        auto source = count_coro<conduit::source<long>>(0, 1);
-        for (auto _ : state) {
-            auto value = *co_await source;
-            benchmark::DoNotOptimize(value);
-        }
-        co_return;
-    }();
-}
-
-static void count_with_cppcoro_generator(benchmark::State& state) {
-    auto source = count_coro<cppcoro::generator<long>>(0, 1);
+static void sync(benchmark::State& state, auto gen) {
     using std::begin;
-    auto it = begin(source);
+    auto it = begin(gen);
     for (auto _ : state) {
         auto value = *it;
         it++;
         benchmark::DoNotOptimize(value);
     }
 }
-
-auto count_with_cppcoro_async_generator(benchmark::State& state) {
-    [&]() -> conduit::co_void {
-        auto gen = count_coro<cppcoro::async_generator<long>>(0, 1);
-        auto it = gen.begin();
-        for (auto _ : state) {
-            auto iter = co_await it;
-            auto value = *iter;
-            benchmark::DoNotOptimize(value);
-        }
-        co_return;
-    }();
+static auto async(benchmark::State& state, conduit::awaitable auto gen) -> conduit::co_void {
+    for(auto _ : state) {
+        long value = *co_await gen;
+        benchmark::DoNotOptimize(value);
+    }
 }
-BENCHMARK(count_baseline);
-BENCHMARK(count_with_cppcoro_generator);
-BENCHMARK(count_with_conduit_generator);
-BENCHMARK(count_with_cppcoro_generator);
-BENCHMARK(count_with_conduit_generator);
-BENCHMARK(count_with_conduit_async_generator);
-BENCHMARK(count_with_cppcoro_async_generator);
+static auto async(benchmark::State& state, auto gen) -> conduit::co_void {
+    using std::begin;
+    auto it = begin(gen);
+    for(auto _ : state) {
+        long value = *co_await it;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
+static auto async10(benchmark::State& state, conduit::awaitable auto gen) -> conduit::co_void {
+    for(auto _ : state) {
+        std::array<long, 10> values;
+        for(long& v : values) {
+            v = *co_await gen;
+        }
+        benchmark::DoNotOptimize(values);
+    }
+}
+static auto async10(benchmark::State& state, auto gen) -> conduit::co_void {
+    using std::begin;
+    auto it = begin(gen);
+    for(auto _ : state) {
+        std::array<long, 10> values;
+        for(long& v : values) {
+            v = *co_await it;
+        }
+        benchmark::DoNotOptimize(values);
+    }
+}
+BENCHMARK(count_std_function);
+BENCHMARK_CAPTURE(sync, "benchmark conduit::generator", nums<conduit::generator<long>>());
+BENCHMARK_CAPTURE(async, "benchmark conduit::source", nums<conduit::source<long>>());
+BENCHMARK_CAPTURE(async, "benchmark cppcoro::async_generator", nums<cppcoro::async_generator<long>>());
+BENCHMARK_CAPTURE(async10, "benchmark conduit::source x5", nums<conduit::source<long>>());
+BENCHMARK_CAPTURE(async10, "benchmark cppcoro::async_generator x5", nums<cppcoro::async_generator<long>>());
+
 
 BENCHMARK_MAIN();
