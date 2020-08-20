@@ -17,7 +17,8 @@ In order to build, do:
 ```
 git clone --depth=1 --recursive https://github.com/functionalperez/conduit_bench.git
 
-cd build
+cd conduit_bench
+mkdir build && cd build
 
 cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
