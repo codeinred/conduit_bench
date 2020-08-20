@@ -9,6 +9,8 @@ and it compares the conduit library against cppcoro.
 
 Because **cppcoro** is the de-facto standard, this benchmark compares **conduit** to **cppcoro**, and so it has to be built with clang 10 and libc++. If your system doesn't come with clang 10 and libc++ as a package, [you can download a binary here](https://releases.llvm.org/download.html).
 
+**conduit**, **cppcoro**, and **google benchmark** are included as git submodules in the project, and as long as you have clang-10 and libc++, you can clone the project recursively and you don't need to install anything.
+
 ## Building conduit_bench
 
 In order to build, run:
@@ -22,12 +24,10 @@ cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
   -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++"
-```
-Finally, run either
-```bash
-cmake --build . --config Release --parallel
-```
-Or, if you're using an older version of cmake that doesn't support `--parallel`,
-```bash
+
 cmake --build . --config Release
 ```
+
+## Running the benchmark
+
+If you're still in the the `build` directory, just run `./conduit_bench`. This will run the benchmark with google benchmark's default settings. For a full list of options, run `./conduit_bench --help`. 
