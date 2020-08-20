@@ -14,15 +14,23 @@ either one's standard library implementation.
 
 
 In order to build, do:
-```
+```bash
 git clone --depth=1 --recursive https://github.com/functionalperez/conduit_bench.git
 
-cd build
+cd conduit_bench
+mkdir build && cd build
 
 cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
   -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++"
-
+```
+Finally, run either
+```bash
+cmake --build . --parallel
+```
+Or
+```bash
 cmake --build .
 ```
+(Some older versions of cmake might not support the --parallel option.)
