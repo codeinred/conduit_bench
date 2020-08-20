@@ -3,7 +3,7 @@
 This repository is a set of benchmarks for the conduit library. It uses google benchmark,
 and it compares the conduit library against cppcoro.
 
-#building conduit_bench
+## Building conduit_bench
 
 The cppcoro library requires both clang and libc++ in order to build. I've also added
 google benchmark as a dependency, because if you have a system installation google benchmark that's built with gcc's 
@@ -12,8 +12,7 @@ stdlib instead of libc++, there may be errors when linking.
 The conduit library, on the other hand, can be built with either clang or gcc using
 either one's standard library implementation.
 
-
-In order to build, do:
+In order to build, run:
 ```bash
 git clone --depth=1 --recursive https://github.com/functionalperez/conduit_bench.git
 
@@ -29,7 +28,7 @@ Finally, run either
 ```bash
 cmake --build . --config Release --parallel
 ```
-Or, if you're using an older version of cmake that doesn't support --parallel,
+Or, if you're using an older version of cmake that doesn't support `--parallel`,
 ```bash
 cmake --build . --config Release
 ```
