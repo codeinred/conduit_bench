@@ -25,5 +25,5 @@ cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
-cmake --build .
+cmake --build . --parallel
 ```
