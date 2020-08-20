@@ -3,14 +3,13 @@
 This repository is a set of benchmarks for the conduit library. It uses google benchmark,
 and it compares the conduit library against cppcoro.
 
+## Dependencies
+
+**conduit** can be built with either gcc 10 or clang 10, as long as you have either a modern version of either standard library on your system. **cppcoro**, however, requires clang 10 with libc++, and can't currently be built using gcc.
+
+Because **cppcoro** is the de-facto standard, this benchmark compares **conduit** to **cppcoro**, and so it has to be built with clang 10 and libc++. If your system doesn't come with clang 10 and libc++ as a package, [you can download a binary here](https://releases.llvm.org/download.html).
+
 ## Building conduit_bench
-
-The cppcoro library requires both clang and libc++ in order to build. I've also added
-google benchmark as a dependency, because if you have a system installation google benchmark that's built with gcc's 
-stdlib instead of libc++, there may be errors when linking. 
-
-The conduit library, on the other hand, can be built with either clang or gcc using
-either one's standard library implementation.
 
 In order to build, run:
 ```bash
