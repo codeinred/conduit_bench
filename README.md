@@ -27,10 +27,9 @@ cmake .. -DCMAKE_CXX_COMPILER=clang++ \
 ```
 Finally, run either
 ```bash
-cmake --build . --parallel
+cmake --build . --config Release --parallel
 ```
-Or
+Or, if you're using an older version of cmake that doesn't support --parallel,
 ```bash
-cmake --build .
+cmake --build . --config Release
 ```
-(Some older versions of cmake might not support the --parallel option.)
