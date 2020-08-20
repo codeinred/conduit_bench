@@ -4,6 +4,7 @@
 #include <conduit/generator.hpp>
 #include <conduit/source.hpp>
 #include <memory>
+#include <array>
 #include <functional>
 
 #include <cppcoro/async_generator.hpp>

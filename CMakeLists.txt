@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(bench_test VERSION 0.1.0)
 
-find_package(benchmark REQUIRED)
+# find_package(benchmark REQUIRED)
+add_subdirectory(benchmark)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# add_compile_options("-stdlib=libc++" "-lc++abi")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
   add_compile_options("-fcoroutines")
