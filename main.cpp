@@ -1,5 +1,5 @@
 #include <benchmark/benchmark.h>
-#include <conduit/co_void.hpp>
+#include <conduit/coroutine.hpp>
 #include <conduit/future.hpp>
 #include <conduit/generator.hpp>
 #include <conduit/source.hpp>
@@ -46,13 +46,13 @@ static void sync(benchmark::State& state, auto gen) {
         benchmark::DoNotOptimize(value);
     }
 }
-static auto async(benchmark::State& state, conduit::awaitable auto gen) -> conduit::co_void {
+static auto async(benchmark::State& state, conduit::awaitable auto gen) -> conduit::coroutine {
     for(auto _ : state) {
         long value = *co_await gen;
         benchmark::DoNotOptimize(value);
     }
 }
-static auto async(benchmark::State& state, auto gen) -> conduit::co_void {
+static auto async(benchmark::State& state, auto gen) -> conduit::coroutine {
     using std::begin;
     auto it = begin(gen);
     for(auto _ : state) {
@@ -61,7 +61,7 @@ static auto async(benchmark::State& state, auto gen) -> conduit::co_void {
     }
 }
 
-static auto async10(benchmark::State& state, conduit::awaitable auto gen) -> conduit::co_void {
+static auto async10(benchmark::State& state, conduit::awaitable auto gen) -> conduit::coroutine {
     for(auto _ : state) {
         std::array<long, 10> values;
         for(long& v : values) {
@@ -70,7 +70,7 @@ static auto async10(benchmark::State& state, conduit::awaitable auto gen) -> con
         benchmark::DoNotOptimize(values);
     }
 }
-static auto async10(benchmark::State& state, auto gen) -> conduit::co_void {
+static auto async10(benchmark::State& state, auto gen) -> conduit::coroutine {
     using std::begin;
     auto it = begin(gen);
     for(auto _ : state) {
