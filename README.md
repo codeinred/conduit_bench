@@ -20,7 +20,7 @@ git clone --depth=1 --recursive https://github.com/functionalperez/conduit_bench
 cd conduit_bench
 mkdir build && cd build
 
-cmake .. -DCMAKE_CXX_COMPILER=clang++ \
+cmake .. -DCMAKE_CXX_COMPILER=clang-10 \
   -DCMAKE_BUILD_TYPE=Release \
   -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++"
