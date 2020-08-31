@@ -22,7 +22,8 @@ mkdir build && cd build
 
 cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+  -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+  -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
 
 cmake --build . --config Release
 
