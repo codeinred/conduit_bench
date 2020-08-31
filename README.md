@@ -22,16 +22,12 @@ mkdir build && cd build
 
 cmake .. -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
 cmake --build . --config Release
+
+# Run benchmark
+./run_benchmark
 ```
 
-## Running the benchmark
-
-If you're still in the the `build` directory, just run 
-```bash
-./conduit_bench
-```
-This will run the benchmark with google benchmark's default settings. For a full list of options, run `./conduit_bench --help`. 
+This will build the project and run the benchmark with google benchmark's default settings. For a full list of benchmarking options, run `./conduit_bench --help`. 
