@@ -8,3 +8,6 @@
 [submodule "benchmark"]
 	path = benchmark
 	url = https://github.com/google/benchmark.git
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt.git
