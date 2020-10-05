@@ -4,7 +4,9 @@
 
 #include <benchmark/benchmark.h>
 
+#include <algorithm>
 #include <memory>
+#include <random>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -28,10 +30,10 @@ class library : std::unique_ptr<void, dl_handle_deleter> {
     using super::operator bool;
 
     library() = default;
-    library(const char* libname)
-      : super(dlopen(libname, RTLD_NOW)) {}
-    library(std::string const& libname)
-      : super(dlopen(libname.c_str(), RTLD_NOW)) {}
+    library(const char* libname, int flags)
+      : super(dlopen(libname, flags)) {}
+    library(std::string const& libname, int flags)
+      : super(dlopen(libname.c_str(), flags)) {}
     library(library&&) = default;
 
     library& operator=(library&&) = default;
@@ -52,7 +54,7 @@ void check(auto& list) {
 using tuplet::tuple;
 auto make_elem(std::string name, auto const& funcs) {
     auto libfile = "lib/lib" + name + ".so";
-    auto lib = library(libfile);
+    auto lib = library(libfile, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
     std::vector<tuple<std::string, bench_fn>> to_bench;
 
     for (auto& f : funcs) {
@@ -68,9 +70,9 @@ auto make_elem(std::string name, auto const& funcs) {
     return std::pair {name, std::move(elem)};
 }
 using value_t = tuple<library, std::vector<tuple<std::string, bench_fn>>>;
-int main() {
+
+void run_benchmarks(int repetitions) {
     using tuplet::tuple;
-    using namespace std::string_literals;
 
     auto funcs = std::unordered_map<std::string, value_t>();
     funcs.emplace(
@@ -82,12 +84,38 @@ int main() {
     funcs.emplace(
         make_elem("conduit-dev", std::vector {"generator", "source"}));
 
+    std::vector<tuple<const char*, bench_fn>> benchmarks;
     for (auto&& [key, value] : funcs) {
         auto&& [lib, funcs] = value;
         for (auto& [name, func] : funcs) {
-            benchmark::RegisterBenchmark(name.c_str(), func);
+            for (int i = 0; i < repetitions; i++) {
+                benchmarks.push_back(tuple {name.c_str(), func});
+            }
         }
     }
 
+    std::random_device hardware_rng;
+    auto seed = std::seed_seq(
+        {hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng(),
+         hardware_rng()});
+    std::mt19937_64 rng(seed);
+    std::shuffle(benchmarks.begin(), benchmarks.end(), rng);
+
+    for(auto [name, func] : benchmarks) {
+        benchmark::RegisterBenchmark(name, func);
+    }
     benchmark::RunSpecifiedBenchmarks();
+}
+
+int main() {
+
+    run_benchmarks(10);
 }
