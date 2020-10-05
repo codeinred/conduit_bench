@@ -1,6 +1,7 @@
 [submodule "conduit"]
 	path = conduit
 	url = https://github.com/functionalperez/conduit.git
+	branch = main
 [submodule "cppcoro"]
 	path = cppcoro
 	url = https://github.com/lewissbaker/cppcoro.git
