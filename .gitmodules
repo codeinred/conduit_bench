@@ -15,3 +15,7 @@
 	path = tuplet
 	url = https://github.com/functionalperez/tuplet.git
 	branch = main
+[submodule "conduit-dev"]
+	path = conduit-dev
+	url = https://github.com/functionalperez/conduit.git
+	branch = dev

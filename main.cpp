@@ -79,6 +79,8 @@ int main() {
         make_elem("cppcoro", std::vector {"generator", "async_generator"}));
     funcs.emplace(
         make_elem("conduit-main", std::vector {"generator", "source"}));
+    funcs.emplace(
+        make_elem("conduit-dev", std::vector {"generator", "source"}));
 
     for (auto&& [key, value] : funcs) {
         auto&& [lib, funcs] = value;
