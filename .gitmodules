@@ -1,4 +1,4 @@
-[submodule "conduit"]
+[submodule "conduit-main"]
 	path = conduit-main
 	url = https://github.com/functionalperez/conduit.git
 	branch = main

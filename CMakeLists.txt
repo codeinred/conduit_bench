@@ -22,10 +22,10 @@ target_link_libraries(baseline benchmark)
 
 add_library(cppcoro SHARED MODULE "src/cppcoro.cpp")
 target_link_libraries(cppcoro benchmark)
-target_include_directories(cppcoro PRIVATE "conduit/include")
+target_include_directories(cppcoro PRIVATE "conduit-main/include")
 
 add_library(conduit-main SHARED MODULE "src/conduit.cpp")
-target_include_directories(conduit-main PRIVATE "conduit/include")
+target_include_directories(conduit-main PRIVATE "conduit-main/include")
 
 add_library(conduit-dev SHARED MODULE "src/conduit.cpp")
 target_include_directories(conduit-dev PRIVATE "conduit-dev/include")
