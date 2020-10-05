@@ -1,92 +1,91 @@
+#include <fmt/core.h>
+
+#include <tuplet/tuplet.hpp>
+
 #include <benchmark/benchmark.h>
-#include <conduit/coroutine.hpp>
-#include <conduit/future.hpp>
-#include <conduit/generator.hpp>
-#include <conduit/source.hpp>
+
 #include <memory>
-#include <array>
-#include <functional>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
 
-#include <cppcoro/async_generator.hpp>
-#include <cppcoro/generator.hpp>
+// Used for dlopen, dlclose, and dlsym
+#include <dlfcn.h>
 
-static void count_baseline(benchmark::State& state) {
-    long min = 0;
-    long inc = 1;
-    for (auto _ : state) {
-        min += inc;
-        long value = min;
-        benchmark::DoNotOptimize(value);
+using bench_fn = void (*)(benchmark::State&);
+constexpr auto close_dl_handle = [](void* pointer) {
+    if (pointer)
+        dlclose(pointer);
+};
+using dl_handle_deleter = std::decay_t<decltype(close_dl_handle)>;
+class library : std::unique_ptr<void, dl_handle_deleter> {
+    using super = std::unique_ptr<void, dl_handle_deleter>;
+
+   public:
+    using super::operator bool;
+
+    library() = default;
+    library(const char* libname)
+      : super(dlopen(libname, RTLD_NOW)) {}
+    library(std::string const& libname)
+      : super(dlopen(libname.c_str(), RTLD_NOW)) {}
+    library(library&&) = default;
+
+    library& operator=(library&&) = default;
+    auto get_func(const char* funcname) -> bench_fn {
+        return bench_fn(dlsym(super::get(), funcname));
     }
-}
-static void count_std_function(benchmark::State& state) {
-    auto func = std::function<long()>([i = 0l] () mutable { return i++; });
+    auto get_func(std::string s) -> bench_fn { return get_func(s.c_str()); }
+};
 
-    for(auto _ : state) {
-        long value = func();
-        benchmark::DoNotOptimize(value);
-    }
-}
-
-template <class Gen>
-auto nums() -> Gen {
-    long i = 0;
-    for (;; i++) {
-        co_yield i;
-    }
-}
-
-
-static void sync(benchmark::State& state, auto gen) {
-    using std::begin;
-    auto it = begin(gen);
-    for (auto _ : state) {
-        auto value = *it;
-        it++;
-        benchmark::DoNotOptimize(value);
-    }
-}
-static auto async(benchmark::State& state, conduit::awaitable auto gen) -> conduit::coroutine {
-    for(auto _ : state) {
-        long value = *co_await gen;
-        benchmark::DoNotOptimize(value);
-    }
-}
-static auto async(benchmark::State& state, auto gen) -> conduit::coroutine {
-    using std::begin;
-    auto it = begin(gen);
-    for(auto _ : state) {
-        long value = *co_await it;
-        benchmark::DoNotOptimize(value);
-    }
-}
-
-static auto async10(benchmark::State& state, conduit::awaitable auto gen) -> conduit::coroutine {
-    for(auto _ : state) {
-        std::array<long, 10> values;
-        for(long& v : values) {
-            v = *co_await gen;
+void check(auto& list) {
+    for (auto& thing : list) {
+        if (!thing) {
+            throw std::logic_error("Null element");
         }
-        benchmark::DoNotOptimize(values);
     }
 }
-static auto async10(benchmark::State& state, auto gen) -> conduit::coroutine {
-    using std::begin;
-    auto it = begin(gen);
-    for(auto _ : state) {
-        std::array<long, 10> values;
-        for(long& v : values) {
-            v = *co_await it;
+
+using tuplet::tuple;
+auto make_elem(std::string name, auto const& funcs) {
+    auto libfile = "lib/lib" + name + ".so";
+    auto lib = library(libfile);
+    std::vector<tuple<std::string, bench_fn>> to_bench;
+
+    for (auto& f : funcs) {
+        auto func_ptr = lib.get_func(f);
+        if (!func_ptr) {
+            throw std::logic_error(
+                fmt::format("lib{}: function '{}' not found", name, f));
         }
-        benchmark::DoNotOptimize(values);
+        to_bench.push_back(tuple {name + "." + f, func_ptr});
     }
+    auto elem = tuple {std::move(lib), std::move(to_bench)};
+
+    return std::pair {name, std::move(elem)};
 }
-BENCHMARK(count_std_function);
-BENCHMARK_CAPTURE(sync, "benchmark conduit::generator", nums<conduit::generator<long>>());
-BENCHMARK_CAPTURE(async, "benchmark conduit::source", nums<conduit::source<long>>());
-BENCHMARK_CAPTURE(async, "benchmark cppcoro::async_generator", nums<cppcoro::async_generator<long>>());
-BENCHMARK_CAPTURE(async10, "benchmark conduit::source x5", nums<conduit::source<long>>());
-BENCHMARK_CAPTURE(async10, "benchmark cppcoro::async_generator x5", nums<cppcoro::async_generator<long>>());
+using value_t = tuple<library, std::vector<tuple<std::string, bench_fn>>>;
+int main() {
+    using tuplet::tuple;
+    using namespace std::string_literals;
 
+    auto funcs = std::unordered_map<std::string, value_t>();
+    funcs.emplace(
+        make_elem("baseline", std::vector {"baseline", "std_function"}));
+    funcs.emplace(
+        make_elem("cppcoro", std::vector {"generator", "async_generator"}));
+    funcs.emplace(
+        make_elem("conduit-main", std::vector {"generator", "source"}));
 
-BENCHMARK_MAIN();
+    for (auto&& [key, value] : funcs) {
+        auto&& [lib, funcs] = value;
+        for (auto& [name, func] : funcs) {
+            benchmark::RegisterBenchmark(name.c_str(), func);
+        }
+    }
+
+    benchmark::RunSpecifiedBenchmarks();
+}
