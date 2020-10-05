@@ -11,3 +11,7 @@
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "tuplet"]
+	path = tuplet
+	url = https://github.com/functionalperez/tuplet.git
+	branch = main
