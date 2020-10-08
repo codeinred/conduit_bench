@@ -12,10 +12,20 @@ set(POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(benchmark)
 add_subdirectory(fmt)
 add_subdirectory(tuplet)
+add_subdirectory(arglet)
 include_directories(cppcoro/include)
 
+add_library(bench INTERFACE)
+target_include_directories(
+    bench
+    INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/>
+    $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(bench INTERFACE benchmark dl fmt tuplet)
+
 add_executable(conduit_bench main.cpp)
-target_link_libraries(conduit_bench tuplet fmt benchmark dl)
+target_link_libraries(conduit_bench bench arglet)
 
 add_library(baseline SHARED MODULE "src/baseline.cpp")
 target_link_libraries(baseline benchmark)
@@ -25,7 +35,9 @@ target_link_libraries(cppcoro benchmark)
 target_include_directories(cppcoro PRIVATE "conduit-main/include")
 
 add_library(conduit-main SHARED MODULE "src/conduit.cpp")
+target_link_libraries(conduit-main benchmark)
 target_include_directories(conduit-main PRIVATE "conduit-main/include")
 
 add_library(conduit-dev SHARED MODULE "src/conduit.cpp")
+target_link_libraries(conduit-dev benchmark)
 target_include_directories(conduit-dev PRIVATE "conduit-dev/include")

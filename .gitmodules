@@ -19,3 +19,7 @@
 	path = conduit-dev
 	url = https://github.com/functionalperez/conduit.git
 	branch = dev
+[submodule "arglet"]
+	path = arglet
+	url = https://github.com/functionalperez/arglet.git
+	branch = main
