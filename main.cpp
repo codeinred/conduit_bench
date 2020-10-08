@@ -12,7 +12,8 @@ int main(int argc, char** argv) {
         ignore_arg,
         group {
             prefixed_value {tags::repetitions, 'r', "--repetitions=", 1},
-            flag {tags::shuffle, 's', "--shuffle"}}};
+            flag {tags::shuffle, 's', "--shuffle"},
+            string {tags::tag<2>()}}};
     parser.parse(argc, (char const**)argv);
 
     bench::context context;
