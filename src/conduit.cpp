@@ -31,3 +31,26 @@ extern "C" void source(benchmark::State& state) {
         }
     }();
 }
+
+extern "C" void opt_generator(benchmark::State& state) {
+    using std::begin;
+    auto gen = nums<conduit::generator<long>>();
+    auto it = begin(gen);
+    long value = 0;
+    for (auto _ : state) {
+        value = *it;
+        it++;
+    }
+    benchmark::DoNotOptimize(value);
+}
+
+extern "C" void opt_source(benchmark::State& state) {
+    [&]() -> conduit::coroutine {
+        auto gen = nums<conduit::source<long>>();
+        long value = 0;
+        for (auto _ : state) {
+            value = *co_await gen;
+        }
+        benchmark::DoNotOptimize(value);
+    }();
+}

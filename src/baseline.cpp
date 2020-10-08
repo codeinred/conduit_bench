@@ -43,3 +43,25 @@ extern "C" void function_pointer(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }
 }
+
+extern "C" void opt_function_pointer(benchmark::State& state) {
+    const auto func = increment_function;
+
+    long i = 0;
+    long value = 0;
+    for (auto _ : state) {
+        i = increment_function(i);
+        value = i;
+    }
+    benchmark::DoNotOptimize(value);
+}
+
+extern "C" void opt_std_function(benchmark::State& state) {
+    auto func = std::function<long()>([i = 0l]() mutable { return i++; });
+
+    long value = 0;
+    for (auto _ : state) {
+        value = func();
+    }
+    benchmark::DoNotOptimize(value);
+}

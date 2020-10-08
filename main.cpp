@@ -18,13 +18,25 @@ int main(int argc, char** argv) {
     bench::context context;
 
     context.add_group(
-        "baseline", {"baseline", "std_function", "function_pointer"});
+        "baseline",
+        {"baseline",
+         "std_function",
+         "function_pointer",
+         "opt_std_function",
+         "opt_function_pointer"});
 
-    context.add_group("conduit-main", {"generator", "source"});
+    context.add_group(
+        "conduit-main", {"generator", "source", "opt_generator", "opt_source"});
 
-    context.add_group("conduit-dev", {"generator", "source"});
+    context.add_group(
+        "conduit-dev", {"generator", "source", "opt_generator", "opt_source"});
 
-    context.add_group("cppcoro", {"generator", "async_generator"});
+    context.add_group(
+        "cppcoro",
+        {"generator",
+         "async_generator",
+         "opt_generator",
+         "opt_async_generator"});
 
     context.register_all(parser[tags::shuffle], parser[tags::repetitions]);
 
