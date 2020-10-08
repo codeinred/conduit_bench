@@ -27,3 +27,19 @@ extern "C" void std_function(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }
 }
+
+// Marked volatile so that the compiler can't optimize it
+long (*volatile increment_function)(long) = +[](long value) {
+    return value + 1;
+};
+
+extern "C" void function_pointer(benchmark::State& state) {
+    const auto func = increment_function;
+
+    long i = 0;
+    for (auto _ : state) {
+        i = increment_function(i);
+        long value = i;
+        benchmark::DoNotOptimize(value);
+    }
+}

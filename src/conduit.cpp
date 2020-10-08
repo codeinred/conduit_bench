@@ -1,8 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <conduit/coroutine.hpp>
-#include <conduit/source.hpp>
 #include <conduit/generator.hpp>
-#include <functional>
+#include <conduit/source.hpp>
 
 template <class Gen>
 auto nums() -> Gen {

@@ -1,3 +1,4 @@
+#include <array>
 #include <benchmark/benchmark.h>
 #include <conduit/coroutine.hpp>
 #include <cppcoro/async_generator.hpp>
