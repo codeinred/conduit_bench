@@ -18,17 +18,17 @@ In order to build, run:
 git clone --depth=1 --recursive https://github.com/functionalperez/conduit_bench.git
 
 cd conduit_bench
-mkdir build && cd build
 
-cmake .. -DCMAKE_CXX_COMPILER=clang++ \
+cmake -Bbuild \
+  -DCMAKE_CXX_COMPILER=clang++ \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
   -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
 
-cmake --build . --config Release
+cmake --build build --parallel
 
 # Run benchmark
-./run_benchmark
+bin/conduit_bench --repetitions=10 --shuffle
 ```
 
 This will build the project and run the benchmark with google benchmark's default settings. For a full list of benchmarking options, run `./conduit_bench --help`. 
