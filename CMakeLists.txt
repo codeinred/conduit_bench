@@ -3,6 +3,7 @@ project(conduit_bench VERSION 0.1.0)
 
 add_compile_options("-fPIC" "-std=c++20")
 
+set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../lib")
