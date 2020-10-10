@@ -27,10 +27,10 @@ int main(int argc, char** argv) {
          "opt_function_pointer"});
 
     context.add_group(
-        "conduit-main", {"generator", "source", "opt_generator", "opt_source"});
+        "conduit-main", {"generator", "source", "opt_generator", "opt_source", "noinline_generator"});
 
     context.add_group(
-        "conduit-dev", {"generator", "source", "opt_generator", "opt_source"});
+        "conduit-dev", {"generator", "source", "opt_generator", "opt_source", "noinline_generator"});
 
     context.add_group(
         "cppcoro",

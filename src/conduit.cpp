@@ -22,6 +22,20 @@ extern "C" void generator(benchmark::State& state) {
     }
 }
 
+extern "C" auto (*get_generator)()
+    -> conduit::generator<long> = nums<conduit::generator<long>>;
+
+extern "C" void noinline_generator(benchmark::State& state) {
+    using std::begin;
+    auto gen = get_generator();
+    auto it = begin(gen);
+    for (auto _ : state) {
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
 extern "C" void source(benchmark::State& state) {
     [&]() -> conduit::coroutine {
         auto gen = nums<conduit::source<long>>();
