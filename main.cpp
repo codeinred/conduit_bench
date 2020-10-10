@@ -27,17 +27,31 @@ int main(int argc, char** argv) {
          "opt_function_pointer"});
 
     context.add_group(
-        "conduit-main", {"generator", "source", "opt_generator", "opt_source", "noinline_generator"});
+        "conduit-main",
+        {"generator",
+         "source",
+         "opt_generator",
+         "opt_source",
+         "noinline_generator",
+         "noinline_source"});
 
     context.add_group(
-        "conduit-dev", {"generator", "source", "opt_generator", "opt_source", "noinline_generator"});
+        "conduit-dev",
+        {"generator",
+         "source",
+         "opt_generator",
+         "opt_source",
+         "noinline_generator",
+         "noinline_source"});
 
     context.add_group(
         "cppcoro",
         {"generator",
          "async_generator",
          "opt_generator",
-         "opt_async_generator"});
+         "opt_async_generator",
+         "noinline_generator",
+         "noinline_async_generator"});
 
     context.register_all(parser[tags::shuffle], parser[tags::repetitions]);
 

@@ -58,3 +58,32 @@ extern "C" void opt_async_generator(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }();
 }
+
+
+extern "C" auto (*get_generator)()
+    -> cppcoro::generator<long> = nums<cppcoro::generator<long>>;
+
+extern "C" void noinline_generator(benchmark::State& state) {
+    using std::begin;
+    auto gen = get_generator();
+    auto it = begin(gen);
+    for (auto _ : state) {
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
+extern "C" auto (*get_async_generator)()
+    -> cppcoro::async_generator<long> = nums<cppcoro::async_generator<long>>;
+
+extern "C" void noinline_async_generator(benchmark::State& state) {
+    [&]() -> conduit::coroutine {
+        auto gen = get_async_generator();
+        auto it = std::begin(gen);
+        for (auto _ : state) {
+            long value = *co_await it;
+            benchmark::DoNotOptimize(value);
+        }
+    }();
+}
