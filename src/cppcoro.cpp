@@ -47,6 +47,20 @@ extern "C" void opt_generator(benchmark::State& state) {
     benchmark::DoNotOptimize(value);
 }
 
+extern "C" void opt_checked_generator(benchmark::State& state) {
+    auto gen = nums<cppcoro::generator<long>>();
+    auto it = std::begin(gen);
+    auto end = std::end(gen);
+    long value = 0;
+    for (auto _ : state) {
+        if (it == end)
+            break;
+        value = *it;
+        it++;
+    }
+    benchmark::DoNotOptimize(value);
+}
+
 extern "C" void opt_async_generator(benchmark::State& state) {
     [&]() -> conduit::coroutine {
         auto gen = nums<cppcoro::async_generator<long>>();
@@ -58,7 +72,6 @@ extern "C" void opt_async_generator(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }();
 }
-
 
 extern "C" auto (*get_generator)()
     -> cppcoro::generator<long> = nums<cppcoro::generator<long>>;
@@ -79,7 +92,8 @@ extern "C" void noinline_checked_generator(benchmark::State& state) {
     auto it = gen.begin();
     auto end = gen.end();
     for (auto _ : state) {
-        if(it == end) break;
+        if (it == end)
+            break;
         auto value = *it;
         it++;
         benchmark::DoNotOptimize(value);
@@ -91,13 +105,13 @@ extern "C" void checked_generator(benchmark::State& state) {
     auto it = gen.begin();
     auto end_ = gen.end();
     for (auto _ : state) {
-        if(it == end_) break;
+        if (it == end_)
+            break;
         auto value = *it;
         it++;
         benchmark::DoNotOptimize(value);
     }
 }
-
 
 extern "C" auto (*get_async_generator)()
     -> cppcoro::async_generator<long> = nums<cppcoro::async_generator<long>>;

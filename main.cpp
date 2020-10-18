@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
          "checked_generator",
          "noinline_checked_generator",
          "opt_generator",
+         "opt_checked_generator",
          "opt_source",
          "noinline_generator",
          "noinline_source"});
@@ -44,6 +45,7 @@ int main(int argc, char** argv) {
          "checked_generator",
          "noinline_checked_generator",
          "opt_generator",
+         "opt_checked_generator",
          "opt_source",
          "noinline_generator",
          "noinline_source"});
@@ -55,6 +57,7 @@ int main(int argc, char** argv) {
          "checked_generator",
          "noinline_checked_generator",
          "opt_generator",
+         "opt_checked_generator",
          "opt_async_generator",
          "noinline_generator",
          "noinline_async_generator"});
