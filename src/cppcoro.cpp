@@ -74,9 +74,19 @@ extern "C" void noinline_generator(benchmark::State& state) {
     }
 }
 
+extern "C" void noinline_checked_generator(benchmark::State& state) {
+    auto gen = get_generator();
+    auto it = gen.begin();
+    auto end = gen.end();
+    for (auto _ : state) {
+        if(it == end) break;
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
 extern "C" void checked_generator(benchmark::State& state) {
-    using std::begin;
-    using std::end;
     auto gen = nums<cppcoro::generator<long>>();
     auto it = gen.begin();
     auto end_ = gen.end();

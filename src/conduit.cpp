@@ -57,6 +57,7 @@ extern "C" void checked_generator(benchmark::State& state) {
     }
 }
 
+
 extern "C" void opt_generator(benchmark::State& state) {
     using std::begin;
     auto gen = nums<conduit::generator<long>>();
@@ -82,6 +83,19 @@ extern "C" void noinline_generator(benchmark::State& state) {
         benchmark::DoNotOptimize(value);
     }
 }
+
+extern "C" void noinline_checked_generator(benchmark::State& state) {
+    auto gen = get_generator();
+    auto it = begin(gen);
+    auto end_ = end(gen);
+    for (auto _ : state) {
+        if(it == end_) break;
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
+}
+
 
 extern "C" auto (*get_source)()
     -> conduit::source<long> = nums<conduit::source<long>>;
