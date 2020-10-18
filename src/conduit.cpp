@@ -11,6 +11,27 @@ auto nums() -> Gen {
     }
 }
 
+extern "C" void source(benchmark::State& state) {
+    [&]() -> conduit::coroutine {
+        auto gen = nums<conduit::source<long>>();
+        for (auto _ : state) {
+            long value = *co_await gen;
+            benchmark::DoNotOptimize(value);
+        }
+    }();
+}
+
+extern "C" void opt_source(benchmark::State& state) {
+    [&]() -> conduit::coroutine {
+        auto gen = nums<conduit::source<long>>();
+        long value = 0;
+        for (auto _ : state) {
+            value = *co_await gen;
+        }
+        benchmark::DoNotOptimize(value);
+    }();
+}
+
 extern "C" void generator(benchmark::State& state) {
     using std::begin;
     auto gen = nums<conduit::generator<long>>();
@@ -22,14 +43,18 @@ extern "C" void generator(benchmark::State& state) {
     }
 }
 
-extern "C" void source(benchmark::State& state) {
-    [&]() -> conduit::coroutine {
-        auto gen = nums<conduit::source<long>>();
-        for (auto _ : state) {
-            long value = *co_await gen;
-            benchmark::DoNotOptimize(value);
-        }
-    }();
+extern "C" void checked_generator(benchmark::State& state) {
+    using std::begin;
+    using std::end;
+    auto gen = nums<conduit::generator<long>>();
+    auto it = begin(gen);
+    auto end_ = end(gen);
+    for (auto _ : state) {
+        if(it == end_) break;
+        auto value = *it;
+        it++;
+        benchmark::DoNotOptimize(value);
+    }
 }
 
 extern "C" void opt_generator(benchmark::State& state) {
@@ -42,17 +67,6 @@ extern "C" void opt_generator(benchmark::State& state) {
         it++;
     }
     benchmark::DoNotOptimize(value);
-}
-
-extern "C" void opt_source(benchmark::State& state) {
-    [&]() -> conduit::coroutine {
-        auto gen = nums<conduit::source<long>>();
-        long value = 0;
-        for (auto _ : state) {
-            value = *co_await gen;
-        }
-        benchmark::DoNotOptimize(value);
-    }();
 }
 
 extern "C" auto (*get_generator)()
